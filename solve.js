@@ -1,3 +1,5 @@
+findOptimal(process.argv.slice(2));
+
 function findOptimal(input) {
   const f = freq(input);
   const cap = Math.max(...input.map((x) => x.length));
@@ -9,12 +11,11 @@ function findOptimal(input) {
     }
   }
   if (bad) {
-    return;
+    process.exit(1);
   }
 
   const steps = search(input, Number.MAX_VALUE);
-  console.log(steps.join('\n'));
-  console.log(steps.length);
+  logSolution(steps);
 
   let low = 1;
   let high = steps.length;
@@ -23,13 +24,16 @@ function findOptimal(input) {
     const steps = search(input, mid);
     if (steps) {
       high = mid;
-      console.log(steps.join('\n'));
-      console.log(steps.length);
+      logSolution(steps);
     } else {
       low = mid + 1;
-      console.log(`No solution with ${mid} steps`);
+      console.log(JSON.stringify({type: 'no-solution', size: mid}));
     }
   }
+}
+
+function logSolution(steps) {
+  console.log(JSON.stringify({type: 'solution', size: steps.length, steps}));
 }
 
 function freq(input) {
@@ -75,7 +79,7 @@ function search(input, maxStep) {
           continue;
         }
         move(state, i, j);
-        steps.push(`${i} ${j}`);
+        steps.push([i, j]);
         if (f()) {
           return steps;
         };
@@ -117,5 +121,3 @@ function allSame(arr) {
 function move(input, i1, i2) {
   input[i2].unshift(input[i1].shift());
 }
-
-findOptimal(process.argv.slice(2));
