@@ -1,3 +1,4 @@
+import json
 import math
 import os
 import os.path
@@ -11,6 +12,8 @@ import numpy as np
 def main():
     with tempfile.TemporaryDirectory() as dir:
         screen_file = os.path.join(dir, 'screen.png')
+        if False:
+            screen_file = 'screen.png'
         with open(screen_file, 'w') as outfile:
             subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=outfile)
         img = cv.imread(screen_file)
@@ -46,6 +49,12 @@ def main():
 
     groups = group_points(centers, diam * 1.2)
 
+    bottles = [group[0] for group in groups]
+    delta = bottles[-1] - bottles[-2]
+    bottles += [bottles[-1] + delta, bottles[-1] + 2 * delta]
+    if False:
+        print(bottles)
+
     if False:
         annotated = img.copy()
         for p in centers:
@@ -57,6 +66,7 @@ def main():
 
     group_colors = []
     known_colors = {}
+    solve_args = []
 
     for group in groups:
         colors = []
@@ -66,7 +76,36 @@ def main():
                 known_colors[pixel] = len(known_colors)
             colors.append(known_colors[pixel])
         group_colors.append(colors)
-        print(''.join(chr(ord('A') + x) for x in colors))
+        solve_args.append(''.join(chr(ord('A') + x) for x in colors))
+    print('Parsed screen')
+    solve_args += ['', '']
+    if False:
+        print(solve_args)
+
+    print('Finding solution')
+    steps = None
+    with subprocess.Popen(['node', 'solve.js'] + solve_args, stdout=subprocess.PIPE) as proc:
+        for line in proc.stdout:
+            obj = json.loads(line)
+            t, s = obj['type'], obj['size']
+            if t == 'solution':
+                print(f'Found solution with {s} steps')
+                steps = obj['steps']
+            elif t == 'no-solution':
+                print(f'No solution within {s} steps')
+            if False:
+                sys.stdout.write(line.decode())
+    if False:
+        print(steps)
+
+    with subprocess.Popen(['adb', 'shell'], stdin=subprocess.PIPE) as proc:
+        for src, dst in steps:
+            src_x, src_y = bottles[src]
+            proc.stdin.write(f'input tap {src_x} {src_y}\n'.encode())
+            proc.stdin.write(b'sleep 0.1\n')
+            dst_x, dst_y = bottles[dst]
+            proc.stdin.write(f'input tap {dst_x} {dst_y}\n'.encode())
+            proc.stdin.write(b'sleep 0.1\n')
 
 
 def group_points(ps, maxd):
