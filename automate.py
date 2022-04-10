@@ -98,6 +98,7 @@ def main():
     if False:
         print(steps)
 
+    print('Actuating solution')
     with subprocess.Popen(['adb', 'shell'], stdin=subprocess.PIPE) as proc:
         for src, dst in steps:
             src_x, src_y = bottles[src]
