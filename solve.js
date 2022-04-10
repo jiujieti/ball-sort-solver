@@ -1,4 +1,4 @@
-function findOptimal(input, names) {
+function findOptimal(input) {
   const f = freq(input);
   const cap = Math.max(...input.map((x) => x.length));
   let bad = false;
@@ -12,8 +12,7 @@ function findOptimal(input, names) {
     return;
   }
 
-  const steps = search(input, names, Number.MAX_VALUE);
-  // const steps = search(input, names, 1000);
+  const steps = search(input, Number.MAX_VALUE);
   console.log(steps.join('\n'));
   console.log(steps.length);
 
@@ -21,7 +20,7 @@ function findOptimal(input, names) {
   let high = steps.length;
   while (low < high) {
     const mid = Math.floor((low + high) / 2);
-    const steps = search(input, names, mid);
+    const steps = search(input, mid);
     if (steps) {
       high = mid;
       console.log(steps.join('\n'));
@@ -46,7 +45,7 @@ function freq(input) {
   return f;
 }
 
-function search(input, names, maxStep) {
+function search(input, maxStep) {
   const state = input.map((x) => [...x]);
   const visited = new Set();
   const cap = Math.max(...input.map((x) => x.length));
@@ -76,7 +75,7 @@ function search(input, names, maxStep) {
           continue;
         }
         move(state, i, j);
-        steps.push(`${names[i]}->${names[j]}`);
+        steps.push(`${i} ${j}`);
         if (f()) {
           return steps;
         };
@@ -119,22 +118,4 @@ function move(input, i1, i2) {
   input[i2].unshift(input[i1].shift());
 }
 
-findOptimal([
-  '橙草绿蓝',
-  '粉帽橙紫',
-  '红蓝帽黄',
-  '黄粉紫黄',
-  '水草黄橙', // ?
-  '绿棕红灰',
-  '蓝灰棕粉',
-
-  '橙帽蓝粉',
-  '棕绿棕灰',
-  '帽红紫水',
-  '灰草紫水', // ?
-  '草红水绿',
-  '',
-  '',
-], [
-  'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
-  'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7']);
+findOptimal(process.argv.slice(2));
