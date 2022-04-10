@@ -13,10 +13,11 @@ function findOptimal(input, names) {
   }
 
   const steps = search(input, names, Number.MAX_VALUE);
+  // const steps = search(input, names, 1000);
   console.log(steps.join('\n'));
   console.log(steps.length);
 
-  let low = 0;
+  let low = 1;
   let high = steps.length;
   while (low < high) {
     const mid = Math.floor((low + high) / 2);
@@ -27,6 +28,7 @@ function findOptimal(input, names) {
       console.log(steps.length);
     } else {
       low = mid + 1;
+      console.log(`No solution with ${mid} steps`);
     }
   }
 }
@@ -53,9 +55,6 @@ function search(input, names, maxStep) {
 
   return f();
 
-  // color - 1~n
-  // cap - capacity in each tube
-  // num - how many tubes
   function f() {
     if (steps.length > maxStep) {
       return;
@@ -73,7 +72,7 @@ function search(input, names, maxStep) {
         continue;
       }
       for (let j = 0; j < num; j++) {
-        if (i === j || state[j].length === cap || !canMove(state, i, j)) {
+        if (i === j || state[j].length === cap || !canMove(state, i, j, cap)) {
           continue;
         }
         move(state, i, j);
@@ -89,7 +88,6 @@ function search(input, names, maxStep) {
   }
 }
 
-// [[0, 0, 0, 0, 0]]
 function isValid(array, cap) {
   for (const arr of array) {
     if (arr.length != 0 && arr.length != cap) {
@@ -108,39 +106,35 @@ function convertToString(input) {
   return input.map(arr => `[${arr.join(",")}]`).join();
 }
 
-function canMove(input, i1, i2) {
-  if (input[i2].length === 0) {
-    return true;
-  }
-  return input[i1][0] === input[i2][0];
+function canMove(input, i1, i2, cap) {
+  return (input[i2].length === 0 || input[i1][0] === input[i2][0]) &&
+    !(allSame(input[i1]) && (input[i1].length === cap || input[i2].length === 0));
+}
+
+function allSame(arr) {
+  return arr.every(ele => ele === arr[0]);
 }
 
 function move(input, i1, i2) {
   input[i2].unshift(input[i1].shift());
 }
 
-// orange 1
-// dark blue 2
-// lime 3
-// dark green 4
-// pink 5
-// blue 6
-// red 7
-// grey 8
-// purple 9
 findOptimal([
-  '橙绿紫灰',
-  '粉粉粉红',
-  '绿紫绿水',
-  '灰橙水蓝',
-  '蓝紫水', // ?
-  '粉草水蓝',
+  '橙草绿蓝',
+  '粉帽橙紫',
+  '红蓝帽黄',
+  '黄粉紫黄',
+  '水草黄橙', // ?
+  '绿棕红灰',
+  '蓝灰棕粉',
 
-  '绿紫红橙',
-  '草灰草红',
-  '草橙蓝', // ?
+  '橙帽蓝粉',
+  '棕绿棕灰',
+  '帽红紫水',
+  '灰草紫水', // ?
+  '草红水绿',
   '',
   '',
 ], [
-  'A1', 'A2', 'A3', 'A4', 'A5', 'A6',
-  'B1', 'B2', 'B3', 'B4', 'B5', 'B6']);
+  'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
+  'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7']);

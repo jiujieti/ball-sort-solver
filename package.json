@@ -1,0 +1,11 @@
+{
+  "name": "ball-sort",
+  "version": "1.0.0",
+  "description": "A solver for ball sort game",
+  "main": "solve.js",
+  "scripts": {
+    "test": ""
+  },
+  "author": "Mengqi Yang, Qi Xiao",
+  "license": "ISC"
+}
